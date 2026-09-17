@@ -27,4 +27,9 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
-Steady.io/AGENTS.md
+/.claude
+/.github/skills
+/.mcp.json
+/boost.json
+/AGENTS.md
+/CLAUDE.md
