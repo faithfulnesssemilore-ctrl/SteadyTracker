@@ -47,6 +47,9 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
+        Fortify::loginView(fn () => redirect(config('app.frontend_url').'/login'));
+        Fortify::registerView(fn () => redirect(config('app.frontend_url').'/register'));
+        Fortify::requestPasswordResetLinkView(fn () => redirect(config('app.frontend_url').'/forgot-password'));
         Fortify::verifyEmailView(fn () => redirect(config('app.frontend_url').'/verify-email'));
         Fortify::redirectUserForTwoFactorAuthenticationUsing(RedirectIfTwoFactorAuthenticatable::class);
 

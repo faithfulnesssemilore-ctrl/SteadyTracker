@@ -1,8 +1,10 @@
 <?php
 
+use App\ActivityStatus;
 use App\Models\Activity;
 use App\Models\HabitCompletion;
 use App\Models\User;
+use App\Priority;
 use Illuminate\Support\Carbon;
 
 function createActivity(): Activity
@@ -45,4 +47,18 @@ it('stops at the first missing day', function () {
     createCompletion($activity, Carbon::today()->subDays(2));
 
     expect($activity->currentStreak())->toBe(1);
+});
+
+it('casts activity status and priority to enums while persisting string values', function () {
+    $activity = Activity::create([
+        'user_id' => User::factory()->create()->id,
+        'title' => 'Plan sprint',
+        'activity_status' => ActivityStatus::Pending,
+        'priority' => Priority::High,
+    ]);
+
+    expect($activity->activity_status)->toBe(ActivityStatus::Pending)
+        ->and($activity->priority)->toBe(Priority::High)
+        ->and($activity->getRawOriginal('activity_status'))->toBe('pending')
+        ->and($activity->getRawOriginal('priority'))->toBe('high');
 });

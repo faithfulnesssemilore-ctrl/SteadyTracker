@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\ActivityStatus;
+use App\Priority;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,12 +16,15 @@ class Activity extends Model
         'title',
         'description',
         'category_id',
+        'activity_status',
         'priority',
         'due_at',
         'is_habit',
     ];
 
     protected $casts = [
+        'activity_status' => ActivityStatus::class,
+        'priority' => Priority::class,
         'due_at' => 'datetime',
         'start_at' => 'datetime',
         'completed_at' => 'datetime',

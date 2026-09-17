@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\ActivityStatus;
 use App\Events\ActivityCreated;
 use App\Events\ActivityUpdated;
 use App\Http\Requests\StoreActivityRequest;
@@ -26,7 +27,7 @@ class ActivityController extends Controller
     public function store(StoreActivityRequest $request)
     {
         $activity = $request->user()->activities()->create(
-            $request->validated() + ['activity_status' => 'pending']
+            $request->validated() + ['activity_status' => ActivityStatus::Pending]
         );
 
         broadcast(new ActivityCreated($activity))->toOthers();
@@ -39,7 +40,7 @@ class ActivityController extends Controller
         $this->authorize('update', $activity);
 
         $activity->update([
-            'activity_status' => 'in_progress',
+            'activity_status' => ActivityStatus::InProgress,
             'start_at' => now(),
         ]);
 
@@ -53,7 +54,7 @@ class ActivityController extends Controller
         $this->authorize('update', $activity);
 
         $activity->update([
-            'activity_status' => 'completed',
+            'activity_status' => ActivityStatus::Completed,
             'completed_at' => now(),
         ]);
 
