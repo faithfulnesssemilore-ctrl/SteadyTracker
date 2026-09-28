@@ -20,11 +20,6 @@ class StoreActivityRequest extends FormRequest
             'description' => ['nullable', 'string'],
             'priority' => ['nullable', Rule::in(array_map(fn (Priority $priority) => $priority->value, Priority::cases()))],
             'due_at' => ['nullable', 'date'],
-            'is_habit' => ['nullable', 'boolean'],
-            'category_id' => [
-                'nullable',
-                Rule::exists('categories', 'id')->where('user_id', $this->user()->id),
-            ],
         ];
     }
 }

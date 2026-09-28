@@ -9,9 +9,9 @@
       <h1 class="hero-heading">Create your account,<br /><span class="accent">build your best life.</span></h1>
       <p class="hero-sub">Join SteadyTracker and start tracking your activities, building consistency, and becoming a better you.</p>
       <ul class="hero-features">
-        <li><span class="feature-icon">📅</span><div><strong>Plan your day</strong><p>Organize your activities and stay on track.</p></div></li>
-        <li><span class="feature-icon">📈</span><div><strong>Track progress</strong><p>Monitor your habits and see your growth.</p></div></li>
-        <li><span class="feature-icon">🛡️</span><div><strong>Stay consistent</strong><p>Build discipline with daily tracking and reminders.</p></div></li>
+        <li><span class="feature-icon"><CalendarDays /></span><div><strong>Plan your day</strong><p>Create activities and set due dates.</p></div></li>
+        <li><span class="feature-icon"><CircleCheck /></span><div><strong>Track progress</strong><p>Start activities and mark them complete.</p></div></li>
+        <li><span class="feature-icon"><ChartSpline /></span><div><strong>Stay on top of work</strong><p>See upcoming and overdue activities.</p></div></li>
       </ul>
       <p class="hero-footer">© 2026 SteadyTracker. All rights reserved.</p>
     </aside>
@@ -55,7 +55,7 @@
             <div class="password-wrap">
               <input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="Create a password" autocomplete="new-password" required />
               <button type="button" class="toggle-visibility" @click="showPassword = !showPassword" :aria-label="showPassword ? 'Hide password' : 'Show password'">
-                {{ showPassword ? '🙈' : '👁' }}
+                {{ showPassword ? '𓁹' : '👁' }}
               </button>
             </div>
             <ul class="requirements">
@@ -97,6 +97,7 @@
 </template>
 
 <script setup lang="ts">
+import { CalendarDays, ChartSpline, CircleCheck ,  } from '@lucide/vue';
 import { ref, computed } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';

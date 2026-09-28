@@ -3,7 +3,7 @@ import api, { ensureCsrfCookie, getApiError } from '../services/api';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    /** @type {{ id?: number, name?: string, email?: string, email_verified_at?: string | null } | null} */
+    /** @type {{ id?: number, name?: string, user_name?: string, email?: string, email_verified_at?: string | null } | null} */
     user: null,
     emailVerified: false,
     loading: false,

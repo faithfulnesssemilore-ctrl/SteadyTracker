@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('activities', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('category_id')->nullable()->constrained()->nullOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
             $table->enum('activity_status', ['pending', 'in_progress', 'completed'])->default('pending');
@@ -24,7 +23,6 @@ return new class extends Migration
             $table->dateTime('completed_at')->nullable();
             $table->string('emotional_bucket')->nullable();
             $table->timestamps();
-            $table->boolean('is_habit')->default(false);
         });
     }
 

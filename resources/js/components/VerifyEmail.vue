@@ -6,8 +6,8 @@
         <span class="brand-badge">✓</span>
         <span class="brand-name">Steady<span class="accent">Tracker</span></span>
       </div>
-      <h1 class="hero-heading">Background Design</h1>
-      <p class="hero-sub">Silk · Warm · Calm · Focused</p>
+      <h1 class="hero-heading"></h1>
+      <p class="hero-sub"></p>
     </aside>
 
     <main class="auth-form-panel">
@@ -17,7 +17,7 @@
       </div>
 
       <div class="auth-card verify-card">
-        <div class="verify-icon">✉️</div>
+        <div class="verify-icon"> <Mail /></div>
         <h2 class="card-heading">Verify your email</h2>
         <p class="card-sub">We've sent a verification link to</p>
 
@@ -29,19 +29,19 @@
 
         <ul class="verify-steps">
           <li>
-            <span class="step-icon">📧</span>
+            <span class="step-icon"> <Mail /></span>
             <span>Check your inbox</span>
           </li>
           <li>
-            <span class="step-icon">🔗</span>
+            <span class="step-icon"><Link /></span>
             <span>Click the verification link</span>
           </li>
           <li>
-            <span class="step-icon">🛡️</span>
+            <span class="step-icon"><CircleCheck /></span>
             <span>Your email will be verified</span>
           </li>
           <li>
-            <span class="step-icon">📈</span>
+            <span class="step-icon"><ChartSpline/></span>
             <span>Start tracking your life</span>
           </li>
         </ul>
@@ -65,6 +65,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api, { ensureCsrfCookie, getApiError } from '../services/api';
+import { Link, ChartSpline, CircleCheck , Mail  } from '@lucide/vue';
 import { useAuthStore } from '../stores/auth';
 import '../styles/auth.css';
 

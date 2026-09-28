@@ -77,7 +77,7 @@ test('an unverified user can sign in and is restricted by verification middlewar
     ])->assertOk();
 
     $this->assertAuthenticatedAs($user);
-    $this->getJson('/api/activities')->assertForbidden();
+    $this->getJson('/api/v1/activities')->assertForbidden();
 });
 
 test('sign in rejects invalid credentials', function () {

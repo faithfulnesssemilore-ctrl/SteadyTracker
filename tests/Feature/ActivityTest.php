@@ -2,52 +2,8 @@
 
 use App\ActivityStatus;
 use App\Models\Activity;
-use App\Models\HabitCompletion;
 use App\Models\User;
 use App\Priority;
-use Illuminate\Support\Carbon;
-
-function createActivity(): Activity
-{
-    return Activity::create([
-        'user_id' => User::factory()->create()->id,
-        'title' => 'Daily habit',
-    ]);
-}
-
-function createCompletion(Activity $activity, Carbon $date): HabitCompletion
-{
-    return HabitCompletion::create([
-        'activity_id' => $activity->id,
-        'completed_on' => $date,
-    ]);
-}
-
-it('counts consecutive completions through today', function () {
-    $activity = createActivity();
-
-    createCompletion($activity, Carbon::today());
-    createCompletion($activity, Carbon::yesterday());
-
-    expect($activity->currentStreak())->toBe(2);
-});
-
-it('counts from yesterday when today is incomplete', function () {
-    $activity = createActivity();
-
-    createCompletion($activity, Carbon::yesterday());
-
-    expect($activity->currentStreak())->toBe(1);
-});
-
-it('stops at the first missing day', function () {
-    $activity = createActivity();
-
-    createCompletion($activity, Carbon::today());
-    createCompletion($activity, Carbon::today()->subDays(2));
-
-    expect($activity->currentStreak())->toBe(1);
-});
 
 it('casts activity status and priority to enums while persisting string values', function () {
     $activity = Activity::create([
@@ -61,4 +17,32 @@ it('casts activity status and priority to enums while persisting string values',
         ->and($activity->priority)->toBe(Priority::High)
         ->and($activity->getRawOriginal('activity_status'))->toBe('pending')
         ->and($activity->getRawOriginal('priority'))->toBe('high');
+});
+
+it('allows a verified user to update and delete their own activities', function () {
+    $user = User::factory()->create(['email_verified_at' => now()]);
+
+    $activity = Activity::create([
+        'user_id' => $user->id,
+        'title' => 'Write sprint notes',
+        'description' => 'Draft notes before kickoff.',
+        'activity_status' => ActivityStatus::Pending,
+        'priority' => Priority::Medium,
+    ]);
+
+    $this->actingAs($user, 'sanctum')
+        ->patchJson('/api/v1/activities/'.$activity->id, [
+            'title' => 'Write sprint retrospective',
+            'description' => 'Capture wins and blockers.',
+            'priority' => 'high',
+        ])
+        ->assertOk()
+        ->assertJsonPath('title', 'Write sprint retrospective')
+        ->assertJsonPath('priority', 'high');
+
+    $this->actingAs($user, 'sanctum')
+        ->deleteJson('/api/v1/activities/'.$activity->id)
+        ->assertNoContent();
+
+    $this->assertDatabaseMissing('activities', ['id' => $activity->id]);
 });

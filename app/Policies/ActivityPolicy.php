@@ -2,13 +2,18 @@
 
 namespace App\Policies;
 
+use App\Models\Activity;
+use App\Models\User;
+
 class ActivityPolicy
 {
-    /**
-     * Create a new policy instance.
-     */
-    public function __construct()
+    public function update(User $user, Activity $activity): bool
     {
-        //
+        return $activity->user_id === $user->id;
+    }
+
+    public function delete(User $user, Activity $activity): bool
+    {
+        return $this->update($user, $activity);
     }
 }

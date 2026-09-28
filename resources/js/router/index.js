@@ -11,12 +11,45 @@ const routes = [
   {
   
     path: '/dashboard',
+    component: () => import('../components/Home.vue'),
+    meta: {
+      requiresAuth: true,
+      requiresVerified: true,
+    },
+  },
+  {
+    path: '/activities',
     component: () => import('../components/Dashboard.vue'),
     meta: {
       requiresAuth: true,
       requiresVerified: true,
     },
   },
+  {
+    path: '/inbox',
+    component: () => import('../components/Inbox.vue'),
+    meta: {
+      requiresAuth: true,
+      requiresVerified: true,
+    },
+  },
+  {
+    path: '/import',
+    component: () => import('../components/ImportCsv.vue'),
+    meta: {
+      requiresAuth: true,
+      requiresVerified: true,
+    },
+  },
+  {
+    path: '/settings',
+    component: () => import('../components/Settings.vue'),
+    meta: {
+      requiresAuth: true,
+      requiresVerified: true,
+    },
+  },
+  { path: '/:pathMatch(.*)*', redirect: '/dashboard' },
 ];
 
 const router = createRouter({ history: createWebHistory(), routes });

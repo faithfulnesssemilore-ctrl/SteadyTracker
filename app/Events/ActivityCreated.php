@@ -29,6 +29,6 @@ class ActivityCreated implements ShouldBroadcast
 
     public function broadcastWith(): array
     {
-        return (new ActivityResource($this->activity->load('category')))->resolve();
+        return (new ActivityResource($this->activity))->resolve();
     }
 }

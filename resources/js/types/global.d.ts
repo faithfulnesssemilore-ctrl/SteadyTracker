@@ -1,4 +1,9 @@
 import type { Auth } from '@/types/auth';
+import type EchoInstance from 'laravel-echo';
+
+declare global {
+    var Echo: EchoInstance;
+}
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {

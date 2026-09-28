@@ -10,9 +10,9 @@
       <h1 class="hero-heading">Track your day.<br /><span class="accent">Build your future.</span></h1>
       <p class="hero-sub">Plan your activities, stay consistent, and become a better version of yourself.</p>
       <ul class="hero-features">
-        <li><span class="feature-icon">📅</span><div><strong>Plan your day</strong><p>Create and schedule activities that matter.</p></div></li>
-        <li><span class="feature-icon">✅</span><div><strong>Track & Reflect</strong><p>Mark progress and write your daily reviews.</p></div></li>
-        <li><span class="feature-icon">📈</span><div><strong>See your growth</strong><p>Understand your patterns and stay motivated.</p></div></li>
+        <li><span class="feature-icon"><CalendarDays /></span><div><strong>Plan your day</strong><p>Create activities and set due dates.</p></div></li>
+        <li><span class="feature-icon"><CircleCheck /></span><div><strong>Track progress</strong><p>Start activities and mark them complete.</p></div></li>
+        <li><span class="feature-icon"><ChartSpline /></span><div><strong>Stay on top of work</strong><p>See upcoming and overdue activities.</p></div></li>
       </ul>
       <p class="hero-footer">© 2026 SteadyTracker. All rights reserved.</p>
     </aside>
@@ -40,7 +40,7 @@
             <div class="password-wrap">
               <input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="Enter your password" autocomplete="current-password" required />
               <button type="button" class="toggle-visibility" @click="showPassword = !showPassword" :aria-label="showPassword ? 'Hide password' : 'Show password'">
-                {{ showPassword ? '🙈' : '👁' }}
+                {{ showPassword ? '𓁹' : '👁️' }}
               </button>
             </div>
           </label>
@@ -72,6 +72,7 @@
 </template>
 
 <script setup lang="ts">
+import { CalendarDays, ChartSpline, CircleCheck ,  } from '@lucide/vue';
 import { ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
