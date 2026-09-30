@@ -13,6 +13,7 @@ class StoreActivityRequest extends FormRequest
         return true; // gate is the auth middleware; ownership is enforced in the controller
     }
 
+    /** @return array<string, list<mixed>> */
     public function rules(): array
     {
         return [

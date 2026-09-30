@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\ActivityCsvImportService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -12,7 +13,7 @@ class CsvPipelineController extends Controller
         private readonly ActivityCsvImportService $importService
     ) {}
 
-    public function processCsv(Request $request)
+    public function processCsv(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'file' => ['required', 'file', 'mimes:csv,txt', 'max:100240'],

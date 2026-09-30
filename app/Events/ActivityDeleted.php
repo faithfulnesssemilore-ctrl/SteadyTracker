@@ -28,6 +28,7 @@ class ActivityDeleted implements ShouldBroadcast
         return 'ActivityDeleted';
     }
 
+    /** @return array{id: int} */
     public function broadcastWith(): array
     {
         return ['id' => $this->activityId];

@@ -85,7 +85,7 @@ it('broadcasts status notifications on the authenticated user channel', function
     );
 
     expect($notification->broadcastAs())->toBe('NotificationCreated')
-        ->and($notification->broadcastOn())->toEqual(new PrivateChannel('user.'.$user->id))
+        ->and($notification->broadcastOn())->toEqual([new PrivateChannel('user.'.$user->id)])
         ->and($notification->toBroadcast($user)->data)->toMatchArray([
             'type' => 'activity_status',
             'status' => 'pending',

@@ -11,10 +11,12 @@ use App\Http\Resources\ActivityResource;
 use App\Models\Activity;
 use App\Notifications\ActivityStatusChanged;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class ActivityController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): AnonymousResourceCollection
     {
         $activities = $request->user()
             ->activities()
@@ -25,7 +27,7 @@ class ActivityController extends Controller
     }// This is the ActivityController class, which handles various actions related to activities, such as listing, creating, updating, deleting, starting, and completing activities.
     // It also includes a private method to notify users of status changes in their activities. why becase
 
-    public function store(StoreActivityRequest $request)
+    public function store(StoreActivityRequest $request): ActivityResource
     {
         $activity = $request->user()->activities()->create(
             $request->validated() + ['activity_status' => ActivityStatus::Pending]
@@ -38,7 +40,7 @@ class ActivityController extends Controller
         return new ActivityResource($activity);
     }
 
-    public function update(StoreActivityRequest $request, Activity $activity)
+    public function update(StoreActivityRequest $request, Activity $activity): ActivityResource
     {
         $this->authorize('update', $activity);
 
@@ -50,7 +52,7 @@ class ActivityController extends Controller
         return new ActivityResource($activity);
     }
 
-    public function destroy(Activity $activity)
+    public function destroy(Activity $activity): Response
     {
         $this->authorize('delete', $activity);
 
@@ -61,7 +63,7 @@ class ActivityController extends Controller
         return response()->noContent();
     }
 
-    public function start(Activity $activity)
+    public function start(Activity $activity): ActivityResource
     {
         $this->authorize('update', $activity);
         abort_unless(
@@ -82,7 +84,7 @@ class ActivityController extends Controller
         return new ActivityResource($activity);
     }
 
-    public function complete(Activity $activity)
+    public function complete(Activity $activity): ActivityResource
     {
         $this->authorize('update', $activity);
         abort_unless(

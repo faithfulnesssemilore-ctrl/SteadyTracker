@@ -27,6 +27,7 @@ class ActivityCreated implements ShouldBroadcast
         return 'ActivityCreated';
     }
 
+    /** @return array<string, mixed> */
     public function broadcastWith(): array
     {
         return (new ActivityResource($this->activity))->resolve();

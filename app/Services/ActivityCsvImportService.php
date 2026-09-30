@@ -20,6 +20,7 @@ use Semilore\CsvImportPipeline\Import\Writing\RejectWriter;
 
 class ActivityCsvImportService
 {
+    /** @return array{imported: int, rejected: int, rejections: list<array{row: int, values: list<string>, reasons: list<string>}>} */
     public function import(User $user, UploadedFile $file): array
     {
         $filePath = $file->getRealPath();
@@ -137,7 +138,7 @@ class ActivityCsvImportService
             sanitizers: $sanitizers,
             parsers: $parsers,
             validationEngine: new ValidationEngine($rulesByField),
-            duplicateChecker: new DuplicateChecker('title'),
+            duplicateChecker: new DuplicateChecker,
             duplicateCheckField: 'title',
             outputWriter: new ActivityCsvAcceptedRowWriter($user),
             rejectWriter: new RejectWriter(storage_path('app/csv-import-rejects-'.now()->format('Ymd_His').'.csv')),

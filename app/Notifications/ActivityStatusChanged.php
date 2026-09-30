@@ -17,11 +17,13 @@ class ActivityStatusChanged extends Notification
         public ActivityStatus $status,
     ) {}
 
+    /** @return list<string> */
     public function via(object $notifiable): array
     {
         return ['database', 'broadcast'];
     }
 
+    /** @return array<string, mixed> */
     public function toDatabase(object $notifiable): array
     {
         return [
@@ -51,9 +53,10 @@ class ActivityStatusChanged extends Notification
         ]);
     }
 
-    public function broadcastOn(): PrivateChannel
+    /** @return array{PrivateChannel} */
+    public function broadcastOn(): array
     {
-        return new PrivateChannel('user.'.$this->activity->user_id);
+        return [new PrivateChannel('user.'.$this->activity->user_id)];
     }
 
     public function broadcastAs(): string

@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class AuthController extends Controller
 {
     // this controller is used for authentication related actions, such as retrieving the authenticated user
-    public function user(Request $request)
+    public function user(Request $request): UserResource
     {
         return new UserResource($request->user());
     }

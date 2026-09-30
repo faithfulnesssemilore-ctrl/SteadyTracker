@@ -40,8 +40,4 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'), // e.g. http://localhost:8000/api/auth/google/callback
     ],
 
-    'resend' => [
-        'key' => env('RESEND_API_KEY'),
-    ],
-
 ];

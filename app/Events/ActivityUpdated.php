@@ -27,6 +27,7 @@ class ActivityUpdated implements ShouldBroadcast
         return 'ActivityUpdated';
     }
 
+    /** @return array<string, mixed> */
     public function broadcastWith(): array
     {
         return (new ActivityResource($this->activity))->resolve();
