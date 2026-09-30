@@ -62,10 +62,10 @@
 </template>
 
 <script setup lang="ts">
+import { Link, ChartSpline, CircleCheck , Mail  } from '@lucide/vue';
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api, { ensureCsrfCookie, getApiError } from '../services/api';
-import { Link, ChartSpline, CircleCheck , Mail  } from '@lucide/vue';
 import { useAuthStore } from '../stores/auth';
 import '../styles/auth.css';
 

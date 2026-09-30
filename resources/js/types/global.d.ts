@@ -1,5 +1,5 @@
-import type { Auth } from '@/types/auth';
 import type EchoInstance from 'laravel-echo';
+import type { Auth } from '@/types/auth';
 
 declare global {
     var Echo: EchoInstance;
