@@ -1,0 +1,6 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "deploy": {
+    "startCommand": "php -d output_buffering=0 -d implicit_flush=1 artisan serve --host=0.0.0.0 --port=$PORT"
+  }
+}
