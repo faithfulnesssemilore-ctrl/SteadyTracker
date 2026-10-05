@@ -30,11 +30,11 @@ class ActivityCsvImportService
         }
 
         $aliases = [
-            'title' => ['title', 'task title', 'Task Title', 'Title', 'task', 'Task', 'activity title', 'Activity', 'Activity Title','User title'],
-            'description' => ['description', 'details', 'Description'],
+            'title' => ['title', 'task title', 'Task Title', 'Title', 'task', 'Task', 'activity title', 'Activity', 'Activity Title', 'User title'],
+            'description' => ['description', 'details', 'Description', 'Details', 'task description', 'Task Description', 'activity description', 'Activity Description'],
             'priority' => ['priority', 'Priority'],
             'activity_status' => ['activity_status', 'status', 'Status'],
-            'due_at' => ['due_at', 'date', 'Due Date', 'due date'],
+            'due_at' => ['due_at', 'date', 'Due Date', 'due date', 'due', 'Due', 'due date', 'Due Date', 'due_at', 'Due At', 'Time', 'time', 'Deadline', 'deadline'],
         ];
 
         $sanitizers = [

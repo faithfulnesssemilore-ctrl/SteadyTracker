@@ -51,7 +51,7 @@ class ActivityCsvAcceptedRowWriter implements AcceptedRowWriter
 
     public function close(): void
     {
-        //this method is intentionally left empty as no specific action is required upon closing the writer.
+        // this method is intentionally left empty as no specific action is required upon closing the writer.
     }
 
     private function assertNotDuplicate(string $title, mixed $dueAt): void
