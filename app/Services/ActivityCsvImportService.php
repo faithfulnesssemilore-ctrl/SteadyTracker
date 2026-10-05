@@ -30,7 +30,7 @@ class ActivityCsvImportService
         }
 
         $aliases = [
-            'title' => ['title', 'task title', 'Task Title'],
+            'title' => ['title', 'task title', 'Task Title', 'Title', 'task', 'Task', 'activity title', 'Activity', 'Activity Title','User title'],
             'description' => ['description', 'details', 'Description'],
             'priority' => ['priority', 'Priority'],
             'activity_status' => ['activity_status', 'status', 'Status'],

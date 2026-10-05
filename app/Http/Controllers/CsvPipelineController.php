@@ -12,7 +12,7 @@ class CsvPipelineController extends Controller
     public function __construct(
         private readonly ActivityCsvImportService $importService
     ) {}
-
+  //This controller handles the CSV import process, validating the uploaded file and delegating the import logic to the ActivityCsvImportService. It returns a JSON response indicating the success or failure of the import operation.
     public function processCsv(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
