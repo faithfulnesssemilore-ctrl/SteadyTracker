@@ -22,7 +22,7 @@ it('stores and exposes user notifications from the database channel', function (
     $user->notify(new ActivityStatusChanged(
         $activity,
         'Up next',
-        'Your sprint plan is scheduled for today.',
+        'Your  plan is scheduled for today.',
         ActivityStatus::Pending,
     ));
 

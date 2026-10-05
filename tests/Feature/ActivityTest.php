@@ -5,7 +5,7 @@ use App\Models\Activity;
 use App\Models\User;
 use App\Priority;
 
-it('casts activity status and priority to enums while persisting string values', function () {
+it('gets activity status and priority as enums while persisting string values', function () {
     $activity = Activity::create([
         'user_id' => User::factory()->create()->id,
         'title' => 'Plan sprint',

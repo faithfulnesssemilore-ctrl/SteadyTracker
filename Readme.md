@@ -53,6 +53,15 @@ To install SteadyTraker, follow these steps:
    php artisan reverb:serve.                        ---> for those who want to use the live updates feature
    ```
    
+   ## Usage
+   - Access the application in your web browser at `http://localhost:8000`and register a new account or log in with existing credentials.
+
+## Contributing
+We welcome contributions to SteadyTraker! If you would like to contribute, please follow these steps:
+1. Fork the repository and create a new branch for your feature or bug fix.
+2. Make your changes and ensure that the code follows the existing coding style and conventions and read the PRD.md document for more details at [Steady.io/docs/PRD.md]
+
+
 
 
 
