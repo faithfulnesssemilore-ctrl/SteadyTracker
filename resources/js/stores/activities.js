@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import api from '../api/activities';
 
 let activityChannel = null;
+let reconnectHandler = null;
 
 export const useActivitiesStore = defineStore('activities', {
     state: () => ({
@@ -63,6 +64,8 @@ export const useActivitiesStore = defineStore('activities', {
         },
         listenForUpdates(userId) {
             this.stopListeningForUpdates(userId);
+            reconnectHandler = () => this.fetchAll();
+            window.addEventListener('steady:reconnected', reconnectHandler);
             activityChannel = Echo.private(`user.${userId}`)
                 .listen('.ActivityUpdated', (a) => this.setActivity(a))
                 .listen('.ActivityCreated', (a) => this.setActivity(a))
@@ -72,6 +75,14 @@ export const useActivitiesStore = defineStore('activities', {
                 );
         },
         stopListeningForUpdates(userId) {
+            if (reconnectHandler) {
+                window.removeEventListener(
+                    'steady:reconnected',
+                    reconnectHandler,
+                );
+                reconnectHandler = null;
+            }
+
             if (activityChannel) {
                 Echo.leave(`user.${userId}`);
                 activityChannel = null;

@@ -16,7 +16,7 @@
                     <span>Home</span>
                 </button>
                 <button
-                    class="nav-item active"
+                    class="nav-item"
                     type="button"
                     aria-current="page"
                     @click="go('/inbox')"

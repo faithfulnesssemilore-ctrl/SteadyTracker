@@ -1,0 +1,219 @@
+services:
+  - type: web
+    name: steady-web
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /up
+    preDeployCommand: php artisan migrate --force
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: DB_CONNECTION
+        value: mysql
+      - key: APP_KEY
+        sync: false
+      - key: APP_URL
+        sync: false
+      - key: APP_FRONTEND_URL
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: SANCTUM_STATEFUL_DOMAINS
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: SESSION_DRIVER
+        value: database
+      - key: SESSION_SECURE_COOKIE
+        value: true
+      - key: SESSION_HTTP_ONLY
+        value: true
+      - key: SESSION_SAME_SITE
+        value: lax
+      - key: CACHE_STORE
+        value: redis
+      - key: QUEUE_CONNECTION
+        value: redis
+      - key: REDIS_CLIENT
+        value: phpredis
+      - key: REDIS_HOST
+        sync: false
+      - key: REDIS_PORT
+        value: 6379
+      - key: REDIS_PASSWORD
+        sync: false
+      - key: MYSQL_ATTR_SSL_CA
+        value: /var/www/html/certs/aiven-ca.pem
+      - key: BROADCAST_CONNECTION
+        value: reverb
+      - key: REVERB_APP_ID
+        sync: false
+      - key: REVERB_APP_KEY
+        sync: false
+      - key: REVERB_APP_SECRET
+        sync: false
+      - key: REVERB_HOST
+        sync: false
+      - key: REVERB_PORT
+        value: 8080
+      - key: REVERB_SCHEME
+        value: https
+      - key: MAIL_MAILER
+        sync: false
+      - key: MAIL_HOST
+        sync: false
+      - key: MAIL_PORT
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_FROM_ADDRESS
+        sync: false
+      - key: MAIL_FROM_NAME
+        value: SteadyTracker
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REDIRECT_URI
+        sync: false
+      - key: HORIZON_ALLOWED_EMAILS
+        sync: false
+
+  - type: worker
+    name: steady-queue
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    startCommand: php artisan horizon
+    envVars:
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: APP_KEY
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: DB_HOST
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: DB_PORT
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: DB_DATABASE
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: DB_USERNAME
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: DB_PASSWORD
+      - key: DB_CONNECTION
+        value: mysql
+      - key: MYSQL_ATTR_SSL_CA
+        value: /var/www/html/certs/aiven-ca.pem
+      - key: QUEUE_CONNECTION
+        value: redis
+      - key: REDIS_CLIENT
+        value: phpredis
+      - key: REDIS_HOST
+        sync: false
+      - key: REDIS_PORT
+        value: 6379
+      - key: REDIS_PASSWORD
+        sync: false
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: LOG_CHANNEL
+        value: stderr
+
+  - type: web
+    name: steady-reverb
+    runtime: docker
+    port: 8080
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    startCommand: php artisan reverb:start --host=0.0.0.0 --port=8080
+    envVars:
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: APP_KEY
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REVERB_APP_ID
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REVERB_APP_KEY
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REVERB_APP_SECRET
+
+  - type: cron
+    name: steady-overdue-notifier
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    schedule: "* * * * *"
+    startCommand: php artisan activities:notify-overdue
+    envVars:
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: APP_KEY
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: DB_HOST
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: DB_PORT
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: DB_DATABASE
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: DB_USERNAME
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: DB_PASSWORD
+      - key: DB_CONNECTION
+        value: mysql
+      - key: MYSQL_ATTR_SSL_CA
+        value: /var/www/html/certs/aiven-ca.pem
+      - key: QUEUE_CONNECTION
+        value: redis
+      - key: REDIS_CLIENT
+        value: phpredis
+      - key: REDIS_HOST
+        sync: false
+      - key: REDIS_PORT
+        value: 6379
+      - key: REDIS_PASSWORD
+        sync: false

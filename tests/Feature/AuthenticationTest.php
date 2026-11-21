@@ -122,6 +122,33 @@ test('a user can request a password reset link through Fortify', function () {
     Notification::assertSentTo($user, ResetPassword::class);
 });
 
+test('an authenticated user can delete their account with their password', function () {
+    $user = User::factory()->create([
+        'password' => 'Password9!',
+        'email_verified_at' => now(),
+    ]);
+
+    $this->actingAs($user)
+        ->deleteJson('/api/user', ['current_password' => 'Password9!'])
+        ->assertNoContent();
+
+    $this->assertDatabaseMissing('users', ['id' => $user->id]);
+});
+
+test('account deletion rejects an incorrect password', function () {
+    $user = User::factory()->create([
+        'password' => 'Password9!',
+        'email_verified_at' => now(),
+    ]);
+
+    $this->actingAs($user)
+        ->deleteJson('/api/user', ['current_password' => 'WrongPassword9!'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['current_password']);
+
+    $this->assertDatabaseHas('users', ['id' => $user->id]);
+});
+
 test('password reset validates the email address', function () {
     $this->postJson('/forgot-password', ['email' => 'not-an-email'])
         ->assertUnprocessable()

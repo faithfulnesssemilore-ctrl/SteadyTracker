@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Notifications\ActivityStatusChanged;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Str;
 
 it('stores and exposes user notifications from the database channel', function () {
     $user = User::factory()->create(['email_verified_at' => now()]);
@@ -91,6 +92,62 @@ it('broadcasts status notifications on the authenticated user channel', function
             'status' => 'pending',
             'activity_id' => $activity->id,
         ]);
+});
+
+it('allows a user to mark and clear their notifications', function () {
+    $user = User::factory()->create(['email_verified_at' => now()]);
+    $notification = $user->notifications()->create([
+        'id' => (string) Str::uuid(),
+        'type' => ActivityStatusChanged::class,
+        'data' => ['title' => 'Reminder', 'message' => 'Check the activity'],
+        'read_at' => null,
+    ]);
+
+    $this->actingAs($user, 'sanctum')
+        ->patchJson('/api/v1/notifications/'.$notification->id.'/read')
+        ->assertOk()
+        ->assertJsonPath('id', $notification->id);
+
+    expect($notification->fresh()->read_at)->not->toBeNull();
+
+    $second = $user->notifications()->create([
+        'id' => (string) Str::uuid(),
+        'type' => ActivityStatusChanged::class,
+        'data' => ['title' => 'Second reminder', 'message' => 'Check again'],
+        'read_at' => null,
+    ]);
+
+    $this->actingAs($user, 'sanctum')
+        ->patchJson('/api/v1/notifications/read-all')
+        ->assertOk()
+        ->assertJsonPath('marked_read', 1);
+
+    expect($second->fresh()->read_at)->not->toBeNull();
+
+    $this->actingAs($user, 'sanctum')
+        ->deleteJson('/api/v1/notifications/'.$second->id)
+        ->assertNoContent();
+
+    $this->assertDatabaseMissing('notifications', ['id' => $second->id]);
+});
+
+it('does not allow one user to manage another user notifications', function () {
+    $owner = User::factory()->create(['email_verified_at' => now()]);
+    $other = User::factory()->create(['email_verified_at' => now()]);
+    $notification = $owner->notifications()->create([
+        'id' => (string) Str::uuid(),
+        'type' => ActivityStatusChanged::class,
+        'data' => ['title' => 'Private', 'message' => 'Private update'],
+        'read_at' => null,
+    ]);
+
+    $this->actingAs($other, 'sanctum')
+        ->patchJson('/api/v1/notifications/'.$notification->id.'/read')
+        ->assertForbidden();
+
+    $this->actingAs($other, 'sanctum')
+        ->deleteJson('/api/v1/notifications/'.$notification->id)
+        ->assertForbidden();
 });
 
 it('notifies once when an active activity becomes overdue', function () {

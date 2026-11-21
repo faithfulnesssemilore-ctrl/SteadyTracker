@@ -13,7 +13,7 @@ SteadyTraker is a simple and efficient task management application designed to h
 - Task history and activity tracking
 - CSV import pipeline for bulk task creation
 
-This application is designed to be simple and easy to use, allowing users to focus on their tasks and projects without unnecessary distractions. With SteadyTraker, you can easily manage your tasks and stay on top of your work but this is just v1 read the PRD.md document for more details at [Steady.io/docs/PRD.md]
+This application is designed to be simple and easy to use, allowing users to focus on their tasks and projects without unnecessary distractions. With SteadyTraker, you can easily manage your tasks and stay on top of your work. See the [Product Requirements Document](docs/PRD.md) for more details.
 
 # Tech stack
 Using  Laravel monolith this are the main technologies used in the project:
@@ -55,6 +55,21 @@ To install SteadyTraker, follow these steps:
    
    ## Usage
    - Access the application in your web browser at `http://localhost:8000`and register a new account or log in with existing credentials.
+
+## CSV import pipeline
+
+Verified users can import multiple activities from the **Import** page. Download the CSV template from that page, fill in one activity per row, then upload the file. The template uses these headers:
+
+```csv
+title,description,priority,activity_status,due_at
+Plan the week,Choose three priorities,medium,pending,2026-10-01 09:00:00
+```
+
+All five headers should be present. `title` is required for each activity; the other fields may be blank. Blank priority defaults to `medium`, blank status to `pending`, and blank description or due date to empty. Priority values are `low`, `medium`, and `high`; status values are `pending`, `in_progress`, and `completed`. Common title, status, and due-date header aliases are also recognized, but the downloaded template is the most reliable format.
+
+The importer reads the header, maps columns, trims and parses each row, validates the values, checks for duplicates, and saves accepted activities to the signed-in user's account. A duplicate is identified by its normalized title and due date, including an existing activity owned by that user. Each row is handled independently, so valid rows are imported even when other rows are rejected. The results show imported and rejected counts and explain rejected rows; the rejection report can be downloaded from the results view.
+
+The API endpoint is `POST /api/v1/csv-import` and requires authentication and verified email. The uploaded file field is named `file`.
 
 ## Contributing
 We welcome contributions to SteadyTraker! If you would like to contribute, please follow these steps:

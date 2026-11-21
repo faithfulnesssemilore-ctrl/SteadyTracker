@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\ActivityCsvImportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class CsvPipelineController extends Controller
@@ -17,7 +18,7 @@ class CsvPipelineController extends Controller
     public function processCsv(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'file' => ['required', 'file', 'mimes:csv,txt', 'max:100240'],
+            'file' => ['required', 'file', 'mimes:csv,txt', 'max:102400'],
         ]);
 
         if ($validator->fails()) {
@@ -44,11 +45,21 @@ class CsvPipelineController extends Controller
                 'rejected' => $report['rejected'],
                 'rejections' => $report['rejections'],
             ], 200);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
+            $requestId = (string) ($request->headers->get('X-Request-ID') ?: str()->uuid());
+
+            Log::error('CSV import failed', [
+                'request_id' => $requestId,
+                'user_id' => $request->user()?->id,
+                'exception' => $exception::class,
+                'message' => $exception->getMessage(),
+            ]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
-            ], 422);
+                'message' => 'The CSV could not be imported. Please try again later.',
+                'request_id' => $requestId,
+            ], 422)->header('X-Request-ID', $requestId);
         }
     }
 }

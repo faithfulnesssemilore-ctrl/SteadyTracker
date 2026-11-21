@@ -10,9 +10,21 @@ use Semilore\CsvImportPipeline\Import\Writing\AcceptedRowWriter;
 
 class ActivityCsvAcceptedRowWriter implements AcceptedRowWriter
 {
+    /** @var array<string, true> */
+    private array $existingKeys = [];
+
     public function __construct(
         private readonly User $user,
-    ) {}
+    ) {
+        foreach ($user->activities()->get(['title', 'due_at']) as $existingActivity) {
+            $this->existingKeys[$this->duplicateKey(
+                (string) $existingActivity->title,
+                $existingActivity->due_at instanceof DateTimeImmutable
+                    ? $existingActivity->due_at
+                    : ($existingActivity->due_at ? DateTimeImmutable::createFromInterface($existingActivity->due_at) : null),
+            )] = true;
+        }
+    }
 
     public function write(RowContext $row): void
     {
@@ -47,6 +59,8 @@ class ActivityCsvAcceptedRowWriter implements AcceptedRowWriter
             'activity_status' => $status,
             'due_at' => $dueAt instanceof DateTimeImmutable ? $dueAt : null,
         ]);
+
+        $this->existingKeys[$this->duplicateKey($title, $dueAt instanceof DateTimeImmutable ? $dueAt : null)] = true;
     }
 
     public function close(): void
@@ -56,20 +70,17 @@ class ActivityCsvAcceptedRowWriter implements AcceptedRowWriter
 
     private function assertNotDuplicate(string $title, mixed $dueAt): void
     {
-        $normalizedDueAt = $dueAt instanceof DateTimeImmutable
-            ? $dueAt->format('Y-m-d H:i:s')
-            : null;
+        $key = $this->duplicateKey($title, $dueAt instanceof DateTimeImmutable ? $dueAt : null);
 
-        $query = $this->user->activities()->whereRaw('LOWER(title) = ?', [mb_strtolower($title)]);
-
-        foreach ($query->get() as $existingActivity) {
-            if ($existingActivity->due_at === null && $normalizedDueAt === null) {
-                throw new RuntimeException('Duplicate activity already exists for this user.');
-            }
-
-            if ($existingActivity->due_at && $normalizedDueAt && $existingActivity->due_at->format('Y-m-d H:i:s') === $normalizedDueAt) {
-                throw new RuntimeException('Duplicate activity already exists for this user.');
-            }
+        if (isset($this->existingKeys[$key])) {
+            throw new RuntimeException('Duplicate activity already exists for this user.');
         }
+    }
+
+    private function duplicateKey(string $title, ?DateTimeImmutable $dueAt): string
+    {
+        $normalizedDueAt = $dueAt?->format('Y-m-d H:i:s') ?? 'no-due-date';
+
+        return mb_strtolower(trim($title)).'|'.$normalizedDueAt;
     }
 }

@@ -198,11 +198,10 @@
                     </button>
                 </form>
 
-                <!--
-        <div class="divider"><span>or continue with</span></div>
-        <a :href="googleRedirectUrl" class="btn-google">
-          <span class="google-g">G</span> Continue with Google
-        </a> -->
+                <div class="divider"><span>or continue with</span></div>
+                <a href="/auth/google/redirect" class="btn-google">
+                    <span class="google-g">G</span> Continue with Google
+                </a>
 
                 <p class="card-footer">
                     Already have an account?

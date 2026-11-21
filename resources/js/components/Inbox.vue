@@ -42,10 +42,10 @@
                 </button>
             </nav>
 
-            <div class="profile-card inbox-profile">
+            <div class="home-sidebar-art" aria-hidden="true"></div>
+            <div class="profile-card">
                 <div class="avatar small">{{ userInitial }}</div>
                 <span>{{ displayName }}</span>
-                <ChevronRight class="profile-chevron" :size="15" />
             </div>
         </aside>
 
@@ -89,6 +89,15 @@
                         <h1 id="inbox-title">Inbox</h1>
                         <p>Here are your recent notifications and updates.</p>
                     </div>
+                    <button
+                        v-if="unreadCount"
+                        class="text-action"
+                        type="button"
+                        :disabled="isLoading"
+                        @click="markAllRead"
+                    >
+                        Mark all read
+                    </button>
                     <button
                         class="inbox-refresh"
                         type="button"
@@ -156,6 +165,15 @@
                         >
                             {{ formatRelativeTime(notification.created_at) }}
                         </time>
+                        <button
+                            v-if="!notification.read_at"
+                            class="text-action"
+                            type="button"
+                            aria-label="Mark notification as read"
+                            @click="markRead(notification.id)"
+                        >
+                            Mark read
+                        </button>
                         <ChevronRight
                             class="inbox-item-chevron"
                             :size="16"
@@ -231,6 +249,35 @@ let notificationChannel: ReturnType<typeof Echo.private> | null = null;
 
 function go(path: string): void {
     router.push(path);
+}
+
+async function markRead(id: string): Promise<void> {
+    try {
+        const { data } = await notificationsApi.markRead(id);
+        const notification = notifications.value.find((item) => item.id === id);
+
+        if (notification) {
+            notification.read_at = data.read_at;
+        }
+    } catch {
+        error.value = 'The notification could not be marked as read.';
+    }
+}
+
+async function markAllRead(): Promise<void> {
+    isLoading.value = true;
+
+    try {
+        await notificationsApi.markAllRead();
+        const readAt = new Date().toISOString();
+        notifications.value.forEach((notification) => {
+            notification.read_at = notification.read_at || readAt;
+        });
+    } catch {
+        error.value = 'Notifications could not be marked as read.';
+    } finally {
+        isLoading.value = false;
+    }
 }
 
 async function fetchNotifications(): Promise<void> {
@@ -352,6 +399,7 @@ function handleNotificationBroadcast(): void {
 }
 
 onMounted(async () => {
+    window.addEventListener('steady:reconnected', handleNotificationBroadcast);
     await fetchNotifications();
 
     if (authStore.user?.id && typeof Echo !== 'undefined') {
@@ -363,6 +411,11 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
+    window.removeEventListener(
+        'steady:reconnected',
+        handleNotificationBroadcast,
+    );
+
     if (
         authStore.user?.id &&
         notificationChannel &&

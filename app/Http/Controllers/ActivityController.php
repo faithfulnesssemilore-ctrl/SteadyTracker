@@ -9,7 +9,9 @@ use App\Events\ActivityUpdated;
 use App\Http\Requests\StoreActivityRequest;
 use App\Http\Resources\ActivityResource;
 use App\Models\Activity;
+use App\Models\ActivityHistory;
 use App\Notifications\ActivityStatusChanged;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -21,7 +23,7 @@ class ActivityController extends Controller
         $activities = $request->user()
             ->activities()
             ->orderBy('due_at')
-            ->get();
+            ->paginate(50);
 
         return ActivityResource::collection($activities);
     }// This is the ActivityController class, which handles various actions related to activities, such as listing, creating, updating, deleting, starting, and completing activities.
@@ -33,6 +35,7 @@ class ActivityController extends Controller
             $request->validated() + ['activity_status' => ActivityStatus::Pending]
         );
 
+        $this->recordHistory($activity, 'created', null, $activity->toArray());
         $this->notifyStatusChange($activity, ActivityStatus::Pending);
 
         broadcast(new ActivityCreated($activity))->toOthers();
@@ -44,8 +47,10 @@ class ActivityController extends Controller
     {
         $this->authorize('update', $activity);
 
+        $oldValues = $activity->toArray();
         $activity->fill($request->validated());
         $activity->save();
+        $this->recordHistory($activity, 'updated', $oldValues, $activity->toArray());
 
         broadcast(new ActivityUpdated($activity))->toOthers();
 
@@ -56,6 +61,8 @@ class ActivityController extends Controller
     {
         $this->authorize('delete', $activity);
 
+        $oldValues = $activity->toArray();
+        $this->recordHistory($activity, 'deleted', $oldValues, null);
         broadcast(new ActivityDeleted($activity->id, $activity->user_id))->toOthers();
 
         $activity->delete();
@@ -72,10 +79,12 @@ class ActivityController extends Controller
             'Only pending activities can be started.'
         );
 
+        $oldValues = $activity->toArray();
         $activity->update([
             'activity_status' => ActivityStatus::InProgress,
             'start_at' => now(),
         ]);
+        $this->recordHistory($activity, 'started', $oldValues, $activity->fresh()->toArray());
 
         $this->notifyStatusChange($activity->fresh(), ActivityStatus::InProgress);
 
@@ -93,16 +102,42 @@ class ActivityController extends Controller
             'Only pending or in-progress activities can be completed.'
         );
 
+        $oldValues = $activity->toArray();
         $activity->update([
             'activity_status' => ActivityStatus::Completed,
             'completed_at' => now(),
         ]);
+        $this->recordHistory($activity, 'completed', $oldValues, $activity->fresh()->toArray());
 
         $this->notifyStatusChange($activity->fresh(), ActivityStatus::Completed);
 
         broadcast(new ActivityUpdated($activity))->toOthers();
 
         return new ActivityResource($activity);
+    }
+
+    public function history(Activity $activity): JsonResponse
+    {
+        $this->authorize('update', $activity);
+
+        return response()->json(
+            $activity->histories()->latest()->get(['id', 'action', 'old_values', 'new_values', 'created_at']),
+        );
+    }
+
+    private function recordHistory(
+        Activity $activity,
+        string $action,
+        ?array $oldValues,
+        ?array $newValues,
+    ): void {
+        ActivityHistory::create([
+            'user_id' => $activity->user_id,
+            'activity_id' => $activity->id,
+            'action' => $action,
+            'old_values' => $oldValues,
+            'new_values' => $newValues,
+        ]);
     }
 
     private function notifyStatusChange(Activity $activity, ActivityStatus $status): void

@@ -29,6 +29,13 @@ it('creates activities with descriptions and updates their lifecycle status', fu
         ->patchJson('/api/v1/activities/'.$activityId.'/complete')
         ->assertOk()
         ->assertJsonPath('activity_status', ActivityStatus::Completed->value);
+
+    $this->actingAs($user, 'sanctum')
+        ->getJson('/api/v1/activities/'.$activityId.'/history')
+        ->assertOk()
+        ->assertJsonFragment(['action' => 'completed'])
+        ->assertJsonFragment(['action' => 'started'])
+        ->assertJsonFragment(['action' => 'created']);
 });
 
 it('rejects invalid activity status transitions', function () {

@@ -124,9 +124,22 @@ The canonical CSV header is:
 title,description,priority,activity_status,due_at
 ```
 
-Blank optional values default to `medium`, `pending`, or `null` as appropriate. The CSV must not contain `id`, `user_id`, or other system-generated fields.
+All five canonical headers must be present, including headers for optional values. Blank optional values default to `medium`, `pending`, or `null` as appropriate. The CSV must not contain `id`, `user_id`, or other system-generated fields.
 
 Duplicate detection uses `lowercase(trim(title)) + normalized due_at`. The later matching row is rejected. Existing activities are checked only within the authenticated user's activities; different users may have the same title and due date.
+
+### CSV import pipeline
+
+The import endpoint is `POST /api/v1/csv-import`, protected by authentication and verified-email middleware. The multipart upload field is `file`. The importer processes the file in these stages:
+
+1. Validate that an upload is present and has a CSV-compatible file type. Invalid uploads are returned as client errors before row processing.
+2. Read the header and map columns to activity fields. Missing canonical headers reject the import because the pipeline cannot map the file safely.
+3. Process each data row independently: trim values, parse typed values such as dates, apply field validation and defaults, then check for duplicates.
+4. Persist each accepted activity using the authenticated user as its owner. Ownership and system-generated fields are never taken from CSV content.
+5. Record invalid, duplicate, or failed-to-save rows with their row number and rejection reason while continuing with subsequent rows.
+6. Return a summary containing imported and rejected counts plus row-level rejection details. The import page displays this summary and allows rejected rows to be downloaded for review.
+
+The import is intentionally not all-or-nothing: row-level failures do not roll back successfully imported activities. Header or file-level failures prevent the row pipeline from starting.
 
 ## 9. API Requirements
 

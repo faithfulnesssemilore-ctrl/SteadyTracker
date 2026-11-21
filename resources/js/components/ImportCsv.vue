@@ -15,7 +15,7 @@
                     <span>Home</span>
                 </button>
                 <button
-                    class="nav-item active"
+                    class="nav-item"
                     type="button"
                     aria-current="page"
                     @click="go('/inbox')"
@@ -285,7 +285,7 @@ interface ApiFailure {
     };
 }
 
-const maximumFileSize = 100240 * 1000;
+const maximumFileSize = 100 * 1024 * 1024;
 const templateCsv =
     'title,description,priority,activity_status,due_at\nPlan the week,Choose three priorities,medium,pending,2026-10-01 09:00:00\n';
 const router = useRouter();
