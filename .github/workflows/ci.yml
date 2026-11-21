@@ -44,11 +44,11 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
-      - name: Run PHP and frontend CI checks
-        run: composer ci:check
-
       - name: Build frontend assets
         run: npm run build
+
+      - name: Run PHP and frontend CI checks
+        run: composer ci:check
 
   docker:
     name: Verify Docker image
