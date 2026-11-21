@@ -79,15 +79,13 @@ services:
         value: 443
       - key: VITE_REVERB_SCHEME
         value: https
+      - key: VITE_API_URL
+        sync: false
+      - key: VITE_APP_NAME
+        value: SteadyTracker
       - key: MAIL_MAILER
-        sync: false
-      - key: MAIL_HOST
-        sync: false
-      - key: MAIL_PORT
-        sync: false
-      - key: MAIL_USERNAME
-        sync: false
-      - key: MAIL_PASSWORD
+        value: brevo
+      - key: BREVO_API_KEY
         sync: false
       - key: MAIL_FROM_ADDRESS
         sync: false
@@ -184,19 +182,7 @@ services:
       - fromService:
           name: steady-web
           type: web
-          envVarKey: MAIL_HOST
-      - fromService:
-          name: steady-web
-          type: web
-          envVarKey: MAIL_PORT
-      - fromService:
-          name: steady-web
-          type: web
-          envVarKey: MAIL_USERNAME
-      - fromService:
-          name: steady-web
-          type: web
-          envVarKey: MAIL_PASSWORD
+          envVarKey: BREVO_API_KEY
       - fromService:
           name: steady-web
           type: web

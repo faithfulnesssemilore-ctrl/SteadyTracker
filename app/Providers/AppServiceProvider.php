@@ -9,9 +9,13 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Symfony\Component\Mailer\Bridge\Brevo\Transport\BrevoApiTransport;
+use Symfony\Component\Mailer\Bridge\Brevo\Transport\BrevoTransportFactory;
+use Symfony\Component\Mailer\Transport\Dsn;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,6 +34,20 @@ class AppServiceProvider extends ServiceProvider
     {
         JsonResource::withoutWrapping();
         $this->configureDefaults();
+
+        Mail::extend('brevo', function (array $config): BrevoApiTransport {
+            $transport = (new BrevoTransportFactory)->create(new Dsn(
+                'brevo+api',
+                'default',
+                (string) ($config['api_key'] ?? ''),
+            ));
+
+            if (! $transport instanceof BrevoApiTransport) {
+                throw new \LogicException('Brevo API transport was not created.');
+            }
+
+            return $transport;
+        });
 
         RateLimiter::for('csv-import', fn (Request $request) => Limit::perMinute(3)->by(
             ($request->user()?->getAuthIdentifier() ?? $request->ip()).'|'.$request->ip()

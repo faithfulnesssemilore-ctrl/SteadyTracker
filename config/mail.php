@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'default' => env('MAIL_MAILER', 'sendinblue'),
+    'default' => env('MAIL_MAILER', 'brevo'),
 
     /*
     |--------------------------------------------------------------------------
@@ -59,6 +59,11 @@ return [
             'client' => [
                 'timeout' => 5,
                 'connect_timeout' => 5, ],
+        ],
+
+        'brevo' => [
+            'transport' => 'brevo',
+            'api_key' => env('BREVO_API_KEY'),
         ],
 
         'sendinblue' => [
