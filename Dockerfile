@@ -1,28 +1,25 @@
-FROM node:22-bookworm-slim AS assets
+FROM node:22-bookworm-slim AS node-runtime
+
+FROM php:8.4-fpm-bookworm AS php
 
 ARG VITE_APP_NAME=SteadyTracker
 ARG VITE_API_URL=
-ARG VITE_REVERB_APP_KEY=
+ARG REVERB_APP_KEY=
 ARG VITE_REVERB_HOST=
 ARG VITE_REVERB_PORT=8080
 ARG VITE_REVERB_SCHEME=https
 
 ENV VITE_APP_NAME=$VITE_APP_NAME \
     VITE_API_URL=$VITE_API_URL \
-    VITE_REVERB_APP_KEY=$VITE_REVERB_APP_KEY \
+    VITE_REVERB_APP_KEY=$REVERB_APP_KEY \
     VITE_REVERB_HOST=$VITE_REVERB_HOST \
     VITE_REVERB_PORT=$VITE_REVERB_PORT \
     VITE_REVERB_SCHEME=$VITE_REVERB_SCHEME
 
-WORKDIR /app
-
-COPY package.json package-lock.json ./
-RUN npm ci
-
-COPY . .
-RUN npm run build
-
-FROM php:8.4-fpm-bookworm AS php
+COPY --from=node-runtime /usr/local/bin/node /usr/local/bin/node
+COPY --from=node-runtime /usr/local/bin/npm /usr/local/bin/npm
+COPY --from=node-runtime /usr/local/bin/npx /usr/local/bin/npx
+COPY --from=node-runtime /usr/local/lib/node_modules /usr/local/lib/node_modules
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
@@ -57,7 +54,8 @@ WORKDIR /var/www/html
 COPY --chown=www-data:www-data . .
 RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
-COPY --from=assets --chown=www-data:www-data /app/public/build ./public/build
+COPY package.json package-lock.json ./
+RUN npm ci && npm run build
 
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY docker/certs/aiven-ca.pem /var/www/html/certs/aiven-ca.pem
