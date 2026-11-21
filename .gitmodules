@@ -1,3 +1,0 @@
-[submodule "app/CsvFeature/CSV-Import-Pipeline-Validation"]
-	path = app/CsvFeature/CSV-Import-Pipeline-Validation
-	url = https://github.com/faithfulnesssemilore-ctrl/CSV-Import-Pipeline-Validation.git
