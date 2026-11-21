@@ -3,6 +3,10 @@ set -Eeuo pipefail
 
 cd /var/www/html
 
+rm -f /etc/nginx/sites-enabled/default
+rm -f /etc/nginx/conf.d/default.conf
+cp /var/www/html/docker/nginx.conf /etc/nginx/conf.d/steady.conf
+
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
