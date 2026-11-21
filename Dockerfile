@@ -16,10 +16,7 @@ ENV VITE_APP_NAME=$VITE_APP_NAME \
     VITE_REVERB_PORT=$VITE_REVERB_PORT \
     VITE_REVERB_SCHEME=$VITE_REVERB_SCHEME
 
-COPY --from=node-runtime /usr/local/bin/node /usr/local/bin/node
-COPY --from=node-runtime /usr/local/bin/npm /usr/local/bin/npm
-COPY --from=node-runtime /usr/local/bin/npx /usr/local/bin/npx
-COPY --from=node-runtime /usr/local/lib/node_modules /usr/local/lib/node_modules
+COPY --from=node-runtime /usr/local /usr/local
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
@@ -55,7 +52,7 @@ COPY --chown=www-data:www-data . .
 RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
 COPY package.json package-lock.json ./
-RUN npm ci && npm run build
+RUN php --version && node --version && npm --version && php artisan --version && npm ci --no-audit --no-fund && npm run build
 
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY docker/certs/aiven-ca.pem /var/www/html/certs/aiven-ca.pem

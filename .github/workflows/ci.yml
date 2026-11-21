@@ -69,6 +69,12 @@ jobs:
           push: false
           load: true
           tags: steadytracker:${{ github.sha }}
+          build-args: |
+            VITE_APP_NAME=SteadyTracker
+            VITE_API_URL=https://steadytracker.onrender.com
+            VITE_REVERB_HOST=steady-reverb.onrender.com
+            VITE_REVERB_PORT=443
+            VITE_REVERB_SCHEME=https
 
   deploy:
     name: Trigger Render deployment
