@@ -30,8 +30,8 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
         Gate::define('viewHorizon', function ($user = null) {
             $allowedEmails = array_filter(array_map(
                 'trim',
-                explode(',', (string) env('HORIZON_ALLOWED_EMAILS')),
-            ));
+                (array) config('horizon.allowed_emails', []),
+            ), fn (string $email): bool => $email !== '');
 
             return $user && in_array(strtolower($user->email), array_map('strtolower', $allowedEmails), true);
         });

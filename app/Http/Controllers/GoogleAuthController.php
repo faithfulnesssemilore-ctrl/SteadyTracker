@@ -7,17 +7,18 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Laravel\Socialite\Facades\Socialite;
+use Symfony\Component\HttpFoundation\RedirectResponse as SymfonyRedirectResponse;
 
 class GoogleAuthController extends Controller
 {
-    public function redirect(): RedirectResponse
+    public function redirect(): SymfonyRedirectResponse
     {
         return Socialite::driver('google')->redirect();
     }
 
     public function callback(): RedirectResponse
     {
-        $googleUser = Socialite::driver('google')->stateless()->user();
+        $googleUser = Socialite::driver('google')->user();
 
         if (! $googleUser->getEmail() || ! (($googleUser->user['email_verified'] ?? false))) {
             abort(403, 'A verified Google email address is required.');

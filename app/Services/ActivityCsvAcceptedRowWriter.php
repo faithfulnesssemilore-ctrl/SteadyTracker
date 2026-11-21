@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use DateTimeImmutable;
+use DateTimeInterface;
 use RuntimeException;
 use Semilore\CsvImportPipeline\Domain\RowContext;
 use Semilore\CsvImportPipeline\Import\Writing\AcceptedRowWriter;
@@ -17,11 +18,13 @@ class ActivityCsvAcceptedRowWriter implements AcceptedRowWriter
         private readonly User $user,
     ) {
         foreach ($user->activities()->get(['title', 'due_at']) as $existingActivity) {
+            $dueAt = $existingActivity->due_at;
+
             $this->existingKeys[$this->duplicateKey(
                 (string) $existingActivity->title,
-                $existingActivity->due_at instanceof DateTimeImmutable
-                    ? $existingActivity->due_at
-                    : ($existingActivity->due_at ? DateTimeImmutable::createFromInterface($existingActivity->due_at) : null),
+                $dueAt instanceof DateTimeInterface
+                    ? DateTimeImmutable::createFromInterface($dueAt)
+                    : null,
             )] = true;
         }
     }

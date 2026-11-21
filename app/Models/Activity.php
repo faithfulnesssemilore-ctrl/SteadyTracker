@@ -33,6 +33,7 @@ class Activity extends Model
         return $this->belongsTo(User::class);
     }
 
+    /** @return HasMany<ActivityHistory, $this> */
     public function histories(): HasMany
     {
         return $this->hasMany(ActivityHistory::class);

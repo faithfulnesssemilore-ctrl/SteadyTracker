@@ -4,7 +4,7 @@ services:
     runtime: docker
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    healthCheckPath: /up
+    healthCheckPath: /api/health/ready
     preDeployCommand: php artisan migrate --force
     envVars:
       - key: APP_ENV
@@ -68,8 +68,16 @@ services:
       - key: REVERB_HOST
         sync: false
       - key: REVERB_PORT
-        value: 8080
+        value: 443
       - key: REVERB_SCHEME
+        value: https
+      - key: VITE_REVERB_APP_KEY
+        sync: false
+      - key: VITE_REVERB_HOST
+        sync: false
+      - key: VITE_REVERB_PORT
+        value: 443
+      - key: VITE_REVERB_SCHEME
         value: https
       - key: MAIL_MAILER
         sync: false
@@ -108,6 +116,10 @@ services:
       - fromService:
           name: steady-web
           type: web
+          envVarKey: APP_URL
+      - fromService:
+          name: steady-web
+          type: web
           envVarKey: DB_HOST
       - fromService:
           name: steady-web
@@ -125,20 +137,80 @@ services:
           name: steady-web
           type: web
           envVarKey: DB_PASSWORD
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: BROADCAST_CONNECTION
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REVERB_APP_ID
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REVERB_APP_KEY
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REVERB_APP_SECRET
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REVERB_HOST
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REVERB_PORT
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REVERB_SCHEME
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REDIS_HOST
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REDIS_PORT
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REDIS_PASSWORD
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: MAIL_MAILER
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: MAIL_HOST
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: MAIL_PORT
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: MAIL_USERNAME
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: MAIL_PASSWORD
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: MAIL_FROM_ADDRESS
       - key: DB_CONNECTION
         value: mysql
       - key: MYSQL_ATTR_SSL_CA
         value: /var/www/html/certs/aiven-ca.pem
+      - key: CACHE_STORE
+        value: redis
       - key: QUEUE_CONNECTION
         value: redis
       - key: REDIS_CLIENT
         value: phpredis
-      - key: REDIS_HOST
-        sync: false
-      - key: REDIS_PORT
-        value: 6379
-      - key: REDIS_PASSWORD
-        sync: false
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
@@ -170,6 +242,50 @@ services:
           name: steady-web
           type: web
           envVarKey: REVERB_APP_SECRET
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: APP_URL
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: BROADCAST_CONNECTION
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REVERB_HOST
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REVERB_PORT
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REVERB_SCHEME
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REDIS_HOST
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REDIS_PORT
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REDIS_PASSWORD
+      - key: CACHE_STORE
+        value: redis
+      - key: QUEUE_CONNECTION
+        value: redis
+      - key: REDIS_CLIENT
+        value: phpredis
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: LOG_CHANNEL
+        value: stderr
 
   - type: cron
     name: steady-overdue-notifier
@@ -183,6 +299,10 @@ services:
           name: steady-web
           type: web
           envVarKey: APP_KEY
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: APP_URL
       - fromService:
           name: steady-web
           type: web
@@ -203,17 +323,59 @@ services:
           name: steady-web
           type: web
           envVarKey: DB_PASSWORD
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: BROADCAST_CONNECTION
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REVERB_APP_ID
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REVERB_APP_KEY
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REVERB_APP_SECRET
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REVERB_HOST
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REVERB_PORT
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REVERB_SCHEME
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REDIS_HOST
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REDIS_PORT
+      - fromService:
+          name: steady-web
+          type: web
+          envVarKey: REDIS_PASSWORD
       - key: DB_CONNECTION
         value: mysql
       - key: MYSQL_ATTR_SSL_CA
         value: /var/www/html/certs/aiven-ca.pem
+      - key: CACHE_STORE
+        value: redis
       - key: QUEUE_CONNECTION
         value: redis
       - key: REDIS_CLIENT
         value: phpredis
-      - key: REDIS_HOST
-        sync: false
-      - key: REDIS_PORT
-        value: 6379
-      - key: REDIS_PASSWORD
-        sync: false
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: LOG_CHANNEL
+        value: stderr

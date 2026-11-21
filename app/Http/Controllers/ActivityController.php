@@ -125,6 +125,10 @@ class ActivityController extends Controller
         );
     }
 
+    /**
+     * @param  array<string, mixed>|null  $oldValues
+     * @param  array<string, mixed>|null  $newValues
+     */
     private function recordHistory(
         Activity $activity,
         string $action,

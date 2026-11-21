@@ -4,6 +4,11 @@ use Illuminate\Support\Str;
 
 return [
 
+    'allowed_emails' => array_values(array_filter(array_map(
+        'trim',
+        explode(',', (string) env('HORIZON_ALLOWED_EMAILS', '')),
+    ))),
+
     /*
     |--------------------------------------------------------------------------
     | Horizon Name
@@ -69,7 +74,7 @@ return [
 
     'prefix' => env(
         'HORIZON_PREFIX',
-        Str::slug(env('APP_NAME', 'laravel'), '_').'_horizon:'
+        Str::slug((string) config('app.name', 'laravel'), '_').'_horizon:'
     ),
 
     /*
