@@ -25,7 +25,10 @@ Route::get('/health/ready', function () {
         $checks['redis'] = 'unavailable';
     }
 
-    $checks['mail'] = config('mail.default') && config('mail.from.address') ? 'configured' : 'missing';
+    $mailer = config('mail.default');
+    $mailConfigured = filled(config('mail.from.address'))
+        && ($mailer !== 'brevo' || filled(config('mail.mailers.brevo.api_key')));
+    $checks['mail'] = $mailConfigured ? 'configured' : 'missing';
     $checks['reverb'] = config('broadcasting.connections.reverb.key') ? 'configured' : 'missing';
 
     $healthy = $checks['database'] === 'ok'

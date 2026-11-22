@@ -1,10 +1,13 @@
 <?php
 
 use App\Models\User;
+use App\Notifications\QueuedVerifyEmail;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Notifications\SendQueuedNotifications;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Queue;
 
 test('a visitor can register through Fortify', function () {
     Event::fake([Registered::class]);
@@ -23,6 +26,26 @@ test('a visitor can register through Fortify', function () {
     ]);
     $this->assertAuthenticated();
     Event::assertDispatched(Registered::class);
+});
+
+test('registration queues the email verification notification', function () {
+    Queue::fake();
+
+    $this->postJson('/register', [
+        'name' => 'Queued User',
+        'email' => 'queued-user@example.com',
+        'password' => 'Password9!',
+        'password_confirmation' => 'Password9!',
+    ])->assertCreated();
+
+    $user = User::where('email', 'queued-user@example.com')->firstOrFail();
+
+    Queue::assertPushed(SendQueuedNotifications::class, function (SendQueuedNotifications $job) use ($user): bool {
+        return $job->notification instanceof QueuedVerifyEmail
+            && $job->notifiables->contains($user)
+            && $job->tries === 3
+            && $job->backoff() === [60, 300];
+    });
 });
 
 test('registration rejects duplicate email addresses', function () {
@@ -130,6 +153,20 @@ test('an authenticated user can delete their account with their password', funct
 
     $this->actingAs($user)
         ->deleteJson('/api/user', ['current_password' => 'Password9!'])
+        ->assertNoContent();
+
+    $this->assertDatabaseMissing('users', ['id' => $user->id]);
+});
+
+test('a Google-only user can delete their account without a password', function () {
+    $user = User::factory()->create([
+        'password' => null,
+        'google_id' => 'google-user-id',
+        'email_verified_at' => now(),
+    ]);
+
+    $this->actingAs($user)
+        ->deleteJson('/api/user', [])
         ->assertNoContent();
 
     $this->assertDatabaseMissing('users', ['id' => $user->id]);
