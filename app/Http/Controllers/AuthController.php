@@ -19,14 +19,18 @@ class AuthController extends Controller
 
     public function destroy(Request $request): Response
     {
-        $validated = $request->validate([
-            'current_password' => ['required', 'string'],
-        ]);
+        $user = $request->user();
 
-        if (! Hash::check($validated['current_password'], $request->user()->password)) {
-            throw ValidationException::withMessages([
-                'current_password' => 'The provided password is incorrect.',
+        if ($user->password) {
+            $validated = $request->validate([
+                'current_password' => ['required', 'string'],
             ]);
+
+            if (! Hash::check($validated['current_password'], $user->password)) {
+                throw ValidationException::withMessages([
+                    'current_password' => 'The provided password is incorrect.',
+                ]);
+            }
         }
 
         if ($request->hasSession()) {

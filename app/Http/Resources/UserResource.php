@@ -21,6 +21,7 @@ class UserResource extends JsonResource
             'name' => $this->user_name,
             'email' => $this->email,
             'email_verified_at' => $this->email_verified_at,
+            'has_password' => (bool) $this->password,
         ];
     }
 }

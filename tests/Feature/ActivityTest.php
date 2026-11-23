@@ -19,6 +19,18 @@ it('gets activity status and priority as enums while persisting string values', 
         ->and($activity->getRawOriginal('priority'))->toBe('high');
 });
 
+it('rejects descriptions longer than 2000 characters', function () {
+    $user = User::factory()->create(['email_verified_at' => now()]);
+
+    $this->actingAs($user, 'sanctum')
+        ->postJson('/api/v1/activities', [
+            'title' => 'Too descriptive',
+            'description' => str_repeat('a', 2001),
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['description']);
+});
+
 it('allows a verified user to update and delete their own activities', function () {
     $user = User::factory()->create(['email_verified_at' => now()]);
 

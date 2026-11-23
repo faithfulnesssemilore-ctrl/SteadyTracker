@@ -5,6 +5,7 @@ namespace App\Providers;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Date;
@@ -34,6 +35,17 @@ class AppServiceProvider extends ServiceProvider
     {
         JsonResource::withoutWrapping();
         $this->configureDefaults();
+
+        $trustedProxies = config('app.trusted_proxies');
+        if (is_array($trustedProxies) && $trustedProxies !== []) {
+            TrustProxies::at($trustedProxies);
+            TrustProxies::withHeaders(
+                Request::HEADER_X_FORWARDED_FOR |
+                Request::HEADER_X_FORWARDED_HOST |
+                Request::HEADER_X_FORWARDED_PORT |
+                Request::HEADER_X_FORWARDED_PROTO,
+            );
+        }
 
         Mail::extend('brevo', function (array $config): BrevoApiTransport {
             $transport = (new BrevoTransportFactory)->create(new Dsn(

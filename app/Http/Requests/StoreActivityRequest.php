@@ -18,7 +18,7 @@ class StoreActivityRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'description' => ['nullable', 'string', 'max:2000'],
             'priority' => ['nullable', Rule::in(array_map(fn (Priority $priority) => $priority->value, Priority::cases()))],
             'due_at' => ['nullable', 'date'],
         ];

@@ -15,6 +15,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 
 class ActivityController extends Controller
 {
@@ -73,21 +74,27 @@ class ActivityController extends Controller
     public function start(Activity $activity): ActivityResource
     {
         $this->authorize('update', $activity);
-        abort_unless(
-            $activity->activity_status === ActivityStatus::Pending,
-            422,
-            'Only pending activities can be started.'
-        );
 
-        $oldValues = $activity->toArray();
-        $activity->update([
-            'activity_status' => ActivityStatus::InProgress,
-            'start_at' => now(),
-        ]);
-        $this->recordHistory($activity, 'started', $oldValues, $activity->fresh()->toArray());
+        $activity = DB::transaction(function () use ($activity): Activity {
+            $lockedActivity = Activity::whereKey($activity->id)->lockForUpdate()->firstOrFail();
 
-        $this->notifyStatusChange($activity->fresh(), ActivityStatus::InProgress);
+            abort_unless(
+                $lockedActivity->activity_status === ActivityStatus::Pending,
+                422,
+                'Only pending activities can be started.'
+            );
 
+            $oldValues = $lockedActivity->toArray();
+            $lockedActivity->update([
+                'activity_status' => ActivityStatus::InProgress,
+                'start_at' => now(),
+            ]);
+            $this->recordHistory($lockedActivity, 'started', $oldValues, $lockedActivity->fresh()->toArray());
+
+            return $lockedActivity->fresh();
+        });
+
+        $this->notifyStatusChange($activity, ActivityStatus::InProgress);
         broadcast(new ActivityUpdated($activity))->toOthers();
 
         return new ActivityResource($activity);
@@ -96,21 +103,27 @@ class ActivityController extends Controller
     public function complete(Activity $activity): ActivityResource
     {
         $this->authorize('update', $activity);
-        abort_unless(
-            in_array($activity->activity_status, [ActivityStatus::Pending, ActivityStatus::InProgress], true),
-            422,
-            'Only pending or in-progress activities can be completed.'
-        );
 
-        $oldValues = $activity->toArray();
-        $activity->update([
-            'activity_status' => ActivityStatus::Completed,
-            'completed_at' => now(),
-        ]);
-        $this->recordHistory($activity, 'completed', $oldValues, $activity->fresh()->toArray());
+        $activity = DB::transaction(function () use ($activity): Activity {
+            $lockedActivity = Activity::whereKey($activity->id)->lockForUpdate()->firstOrFail();
 
-        $this->notifyStatusChange($activity->fresh(), ActivityStatus::Completed);
+            abort_unless(
+                in_array($lockedActivity->activity_status, [ActivityStatus::Pending, ActivityStatus::InProgress], true),
+                422,
+                'Only pending or in-progress activities can be completed.'
+            );
 
+            $oldValues = $lockedActivity->toArray();
+            $lockedActivity->update([
+                'activity_status' => ActivityStatus::Completed,
+                'completed_at' => now(),
+            ]);
+            $this->recordHistory($lockedActivity, 'completed', $oldValues, $lockedActivity->fresh()->toArray());
+
+            return $lockedActivity->fresh();
+        });
+
+        $this->notifyStatusChange($activity, ActivityStatus::Completed);
         broadcast(new ActivityUpdated($activity))->toOthers();
 
         return new ActivityResource($activity);

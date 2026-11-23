@@ -188,7 +188,7 @@
                         <h2 id="delete-heading">Delete account</h2>
                         <p>Permanently delete your account and activities.</p>
                     </div>
-                    <label>
+                    <label v-if="authStore.user?.has_password">
                         <span>Confirm with your current password</span>
                         <input
                             v-model="deletePassword"
@@ -200,7 +200,10 @@
                     <button
                         class="settings-danger"
                         type="button"
-                        :disabled="deleting || !deletePassword"
+                        :disabled="
+                            deleting ||
+                            (authStore.user?.has_password && !deletePassword)
+                        "
                         @click="deleteAccount"
                     >
                         {{
