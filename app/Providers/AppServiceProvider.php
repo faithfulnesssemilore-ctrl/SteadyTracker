@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Symfony\Component\Mailer\Bridge\Brevo\Transport\BrevoApiTransport;
@@ -35,6 +36,10 @@ class AppServiceProvider extends ServiceProvider
     {
         JsonResource::withoutWrapping();
         $this->configureDefaults();
+
+        if (app()->isProduction()) {
+            URL::forceScheme('https');
+        }
 
         $trustedProxies = config('app.trusted_proxies');
         if (is_array($trustedProxies) && $trustedProxies !== []) {
